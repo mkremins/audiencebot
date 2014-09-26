@@ -5,6 +5,7 @@
   "dependencies": {
     "express": "4.x",
     "node-osc": "0.2.1",
+    "serve-static": "1.6.3",
     "socket.io": "1.1.0"
   }
 }
