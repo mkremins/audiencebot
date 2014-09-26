@@ -1,0 +1,10 @@
+{
+  "name": "microphony",
+  "version": "0.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "express": "4.x",
+    "node-osc": "0.2.1",
+    "socket.io": "1.1.0"
+  }
+}
