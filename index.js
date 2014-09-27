@@ -22,10 +22,16 @@ function calculateConsensus(votes){
 
 io.on('connection', function(socket){
   console.log(socket.id + ': connected');
+  socket.broadcast.emit('client connected', {id: socket.id, x: 50, y: 50});
   socket.emit('consensus changed', consensus);
+  for (var voter in votes) {
+    socket.emit('client connected', votes[voter]);
+  }
 
   socket.on('vote changed', function(data){
     console.log(socket.id + ': ' + data.x + ', ' + data.y);
+    data.id = socket.id;
+    socket.broadcast.emit('vote changed', data);
     votes[socket.id] = data;
     consensus = calculateConsensus(votes);
     io.emit('consensus changed', consensus);
@@ -33,9 +39,10 @@ io.on('connection', function(socket){
 
   socket.on('disconnect', function(){
     console.log(socket.id + ': disconnected');
+    socket.broadcast.emit('client disconnected', {id: socket.id});
     delete votes[socket.id];
     consensus = calculateConsensus(votes);
-    io.emit('consensus changed', consensus);
+    socket.broadcast.emit('consensus changed', consensus);
   });
 });
 
