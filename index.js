@@ -22,6 +22,7 @@ function calculateConsensus(votes){
 
 io.on('connection', function(socket){
   console.log(socket.id + ': connected');
+  socket.emit('consensus changed', consensus);
 
   socket.on('vote changed', function(data){
     console.log(socket.id + ': ' + data.x + ', ' + data.y);
