@@ -37,7 +37,7 @@
       .on('dragend', function(){
         var x = d3.select(this).attr('cx');
         var y = d3.select(this).attr('cy');
-        socket.emit('move', {x: x, y: y});
+        socket.emit('move', {x: parseFloat(x), y: parseFloat(y)});
       });
 
     // set up view
