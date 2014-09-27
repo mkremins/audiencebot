@@ -15,14 +15,31 @@
   <title>Document</title>
 </head>
 <body>
-  <svg viewBox="0 0 100 100">
-    <circle cx="50" cy="50" r="5"></circle>
-  </svg>
+  <svg viewBox="0 0 100 100"></svg>
   <script src="http://d3js.org/d3.v3.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
   <script>
+    // set up comms
     var socket = io();
-    d3.select('svg').attr('width', screen.width).attr('height', screen.width);
+
+    // view config
+    var width = 100;
+    var height = 100;
+    var radius = 5;
+
+    // set up drag behavior
+    var drag = d3.behavior.drag().on('drag', function(){
+      d3.select(this)
+        .attr('cx', Math.max(radius, Math.min(width - radius, d3.event.x)))
+        .attr('cy', Math.max(radius, Math.min(height - radius, d3.event.y)));
+    });
+
+    // set up view
+    d3.select('svg')
+      .attr('width', screen.width).attr('height', screen.width)
+      .append('circle')
+      .attr('cx', width/2).attr('cy', height/2).attr('r', radius)
+      .call(drag);
   </script>
 </body>
 </html>
