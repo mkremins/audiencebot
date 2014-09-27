@@ -21,6 +21,9 @@
   <script>
     // set up comms
     var socket = io();
+    socket.on('consensus changed', function(data){
+      console.log('new consensus: ' + data.x + ', ' + data.y);
+    });
 
     // view config
     var width = 100;
@@ -37,7 +40,7 @@
       .on('dragend', function(){
         var x = d3.select(this).attr('cx');
         var y = d3.select(this).attr('cy');
-        socket.emit('move', {x: parseFloat(x), y: parseFloat(y)});
+        socket.emit('vote changed', {x: parseFloat(x), y: parseFloat(y)});
       });
 
     // set up view
