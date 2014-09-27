@@ -8,12 +8,12 @@ var port = 3000;
 app.use(serveStatic('public'));
 
 io.on('connection', function(socket){
-  console.log('a user connected');
+  console.log(socket.id + ': connected');
   socket.on('move', function(data){
-    console.log(data);
+    console.log(socket.id + ': ' + data.x + ', ' + data.y);
   });
   socket.on('disconnect', function(){
-    console.log('a user disconnected');
+    console.log(socket.id + ': disconnected');
   });
 });
 
