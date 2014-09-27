@@ -54,10 +54,13 @@ drag.on('dragend', function(d){
 function updateView(data){
   var sel = d3.select('svg').selectAll('circle').data(data, get('id'));
   sel.enter().append('circle').call(drag);
-  sel.attr('cx',   get('x'))
-     .attr('cy',   get('y'))
-     .attr('fill', function(d){ return d.id === 'self' ? 'red' : 'black'; })
-     .attr('r',    function(d){ return d.id === 'consensus' ? 7.5 : radius; });
+  sel.attr('fill', function(d){ return d.id === 'self' ? 'red' : 'black'; })
+     .attr('r', function(d){ return d.id === 'consensus' ? 7.5 : radius; })
+     .transition()
+       .duration(function(d){ return d.id === 'self' ? 0 :
+                                     d.id === 'consensus' ? 2000 : 1000; })
+       .attr('cx', get('x'))
+       .attr('cy', get('y'));
   sel.exit().remove();
 }
 
