@@ -28,11 +28,17 @@
     var radius = 5;
 
     // set up drag behavior
-    var drag = d3.behavior.drag().on('drag', function(){
-      d3.select(this)
-        .attr('cx', Math.max(radius, Math.min(width - radius, d3.event.x)))
-        .attr('cy', Math.max(radius, Math.min(height - radius, d3.event.y)));
-    });
+    var drag = d3.behavior.drag()
+      .on('drag', function(){
+        d3.select(this)
+          .attr('cx', Math.max(radius, Math.min(width - radius, d3.event.x)))
+          .attr('cy', Math.max(radius, Math.min(height - radius, d3.event.y)));
+      })
+      .on('dragend', function(){
+        var x = d3.select(this).attr('cx');
+        var y = d3.select(this).attr('cy');
+        socket.emit('move', {x: x, y: y});
+      });
 
     // set up view
     d3.select('svg')
