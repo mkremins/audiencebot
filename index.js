@@ -3,14 +3,13 @@ var server = require('http').Server(app);
 var serveStatic = require('serve-static');
 var io = require('socket.io')(server);
 var osc = require('node-osc');
-
-var port = 3000;
+var config = require('./config');
 
 app.use(serveStatic('public'));
 
 var votes = {};
 var consensus = {x: 50, y: 50};
-var oscClient = new osc.Client('127.0.0.1', 3333);
+var oscClient = new osc.Client(config.oscRemoteAddress, config.oscRemotePort);
 
 function calculateConsensus(votes){
   var totalX = 0, totalY = 0, voteCount = 0;
@@ -52,6 +51,6 @@ io.on('connection', function(socket){
   });
 });
 
-server.listen(port, function(){
-  console.log('listening on port ' + port);
+server.listen(config.port, function(){
+  console.log('listening on port ' + config.port);
 });
