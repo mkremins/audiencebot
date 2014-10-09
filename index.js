@@ -21,12 +21,6 @@ function calculateConsensus(votes){
   return {x: totalX / voteCount, y: totalY / voteCount};
 }
 
-function updateConsensus(votes){
-  consensus = calculateConsensus(votes);
-  io.emit('consensus changed', consensus);
-  oscClient.send(new osc.Message('/consensus', consensus.x, consensus.y));
-}
-
 io.on('connection', function(socket){
   console.log(socket.id + ': connected');
   socket.broadcast.emit('client connected', {id: socket.id, x: 50, y: 50});
@@ -35,19 +29,41 @@ io.on('connection', function(socket){
     socket.emit('client connected', votes[voter]);
   }
 
-  socket.on('vote changed', function(data){
-    console.log(socket.id + ': ' + data.x + ', ' + data.y);
-    data.id = socket.id;
-    socket.broadcast.emit('vote changed', data);
-    votes[socket.id] = data;
-    updateConsensus(votes);
+  socket.on('vote changed', function(vote){
+    console.log(socket.id + ': ' + vote.x + ', ' + vote.y);
+
+    // calculate delta
+    var prevVote = votes[socket.id] || {id: socket.id, x: 50, y: 50};
+    var delta = {x: vote.x - prevVote.x, y: vote.y - prevVote.y};
+
+    // calculate new consensus
+    vote.id = socket.id;
+    votes[socket.id] = vote;
+    consensus = calculateConsensus(votes);
+
+    // calculate overcorrection
+    var numVoters = Object.keys(votes).length;
+    var overshoot = {x: delta.x / numVoters, y: delta.y / numVoters};
+    var extreme = {x: consensus.x + overshoot.x, y: consensus.y + overshoot.y};
+
+    // broadcast changes
+    socket.broadcast.emit('vote changed', vote);
+    io.emit('consensus changed', extreme); // TEMPORARY HACK TO TEST EXTREME
+    oscClient.send(new osc.Message('/consensus', consensus.x, consensus.y));
+    oscClient.send(new osc.Message('/extreme', extreme.x, extreme.y));
   });
 
   socket.on('disconnect', function(){
     console.log(socket.id + ': disconnected');
-    socket.broadcast.emit('client disconnected', {id: socket.id});
+
+    // calculate new consensus
     delete votes[socket.id];
-    updateConsensus(votes);
+    consensus = calculateConsensus(votes);
+
+    // broadcast changes
+    socket.broadcast.emit('client disconnected', {id: socket.id});
+    io.emit('consensus changed', consensus);
+    oscClient.send(new osc.Message('/consensus', consensus.x, consensus.y));
   });
 });
 
