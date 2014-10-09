@@ -41,16 +41,16 @@ io.on('connection', function(socket){
     votes[socket.id] = vote;
     consensus = calculateConsensus(votes);
 
-    // calculate overcorrection
+    // calculate overshoot estimate
     var numVoters = Object.keys(votes).length;
-    var overshoot = {x: delta.x / numVoters, y: delta.y / numVoters};
-    var extreme = {x: consensus.x + overshoot.x, y: consensus.y + overshoot.y};
+    var offset = {x: delta.x / numVoters, y: delta.y / numVoters};
+    var overshoot = {x: consensus.x + offset.x, y: consensus.y + offset.y};
 
     // broadcast changes
     socket.broadcast.emit('vote changed', vote);
-    io.emit('consensus changed', extreme); // TEMPORARY HACK TO TEST EXTREME
+    io.emit('consensus changed', overshoot); // TEMPORARY HACK TO TEST OVERSHOOT
     oscClient.send(new osc.Message('/consensus', consensus.x, consensus.y));
-    oscClient.send(new osc.Message('/extreme', extreme.x, extreme.y));
+    oscClient.send(new osc.Message('/overshoot', overshoot.x, overshoot.y));
   });
 
   socket.on('disconnect', function(){
