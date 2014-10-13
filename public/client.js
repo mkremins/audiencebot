@@ -58,7 +58,7 @@ function updateView(data){
      .attr('r', function(d){ return d.id === 'consensus' ? 7.5 : radius; })
      .transition()
        .duration(function(d){ return d.id === 'self' ? 0 :
-                                     d.id === 'consensus' ? 2000 : 1000; })
+                                     d.id === 'consensus' ? 100 : 50; })
        .attr('cx', get('x'))
        .attr('cy', get('y'));
   sel.exit().remove();

@@ -8,23 +8,33 @@ var config = require('./config');
 app.use(serveStatic('public'));
 
 var votes = {};
+
 var consensus = {x: 50, y: 50};
+var offset    = {x: 0, y: 0};
+var overshoot = {x: 50, y: 50};
+
 var oscClient = new osc.Client(config.oscRemoteAddress, config.oscRemotePort);
 
 function calculateConsensus(votes){
-  var totalX = 0, totalY = 0, voteCount = 0;
+  var totalX = 0, totalY = 0, voteCount = Object.keys(votes).length;
   for (var key in votes) {
     totalX += votes[key].x;
     totalY += votes[key].y;
-    voteCount++;
   }
   return {x: totalX / voteCount, y: totalY / voteCount};
 }
 
+setInterval(function(){
+  overshoot = {x: consensus.x + offset.x, y: consensus.y + offset.y};
+  io.emit('consensus changed', overshoot);
+  oscClient.send(new osc.Message('/consensus', overshoot.x, overshoot.y));
+  offset = {x: offset.x / 2, y: offset.y / 2};
+}, 100);
+
 io.on('connection', function(socket){
   console.log(socket.id + ': connected');
   socket.broadcast.emit('client connected', {id: socket.id, x: 50, y: 50});
-  socket.emit('consensus changed', consensus);
+  socket.emit('consensus changed', overshoot);
   for (var voter in votes) {
     socket.emit('client connected', votes[voter]);
   }
@@ -41,29 +51,19 @@ io.on('connection', function(socket){
     votes[socket.id] = vote;
     consensus = calculateConsensus(votes);
 
-    // calculate overshoot estimate
+    // add impulse to offset
     var numVoters = Object.keys(votes).length;
-    var offset = {x: delta.x / numVoters, y: delta.y / numVoters};
-    var overshoot = {x: consensus.x + offset.x, y: consensus.y + offset.y};
+    offset.x += delta.x / numVoters;
+    offset.y += delta.y / numVoters;
 
-    // broadcast changes
     socket.broadcast.emit('vote changed', vote);
-    io.emit('consensus changed', overshoot); // TEMPORARY HACK TO TEST OVERSHOOT
-    oscClient.send(new osc.Message('/consensus', consensus.x, consensus.y));
-    oscClient.send(new osc.Message('/overshoot', overshoot.x, overshoot.y));
   });
 
   socket.on('disconnect', function(){
     console.log(socket.id + ': disconnected');
-
-    // calculate new consensus
     delete votes[socket.id];
     consensus = calculateConsensus(votes);
-
-    // broadcast changes
     socket.broadcast.emit('client disconnected', {id: socket.id});
-    io.emit('consensus changed', consensus);
-    oscClient.send(new osc.Message('/consensus', consensus.x, consensus.y));
   });
 });
 
