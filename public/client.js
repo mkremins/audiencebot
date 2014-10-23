@@ -66,7 +66,7 @@ function updateView(data){
   d3.select('#consensus-marker')
     .transition().duration(100).attr('x', consensus.x - 5).attr('y', consensus.y - 5);
 
-  var sel2 = d3.select('svg').selectAll('line.connecter').data(data, get('id'));
+  var sel2 = d3.select('#lines').selectAll('line').data(data, get('id'));
   sel2.enter().append('line');
   sel2.classed('connecter', true)
       .attr('stroke-width', 0.5)
