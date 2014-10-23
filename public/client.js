@@ -65,6 +65,17 @@ function updateView(data){
 
   d3.select('#consensus-marker')
     .transition().duration(100).attr('x', consensus.x - 5).attr('y', consensus.y - 5);
+
+  var sel2 = d3.select('svg').selectAll('line.connecter').data(data, get('id'));
+  sel2.enter().append('line');
+  sel2.classed('connecter', true)
+      .attr('stroke-width', 0.5)
+      .attr('stroke', 'gray')
+      .attr('x1', get('x'))
+      .attr('y1', get('y'))
+      .attr('x2', consensus.x)
+      .attr('y2', consensus.y);
+  sel2.exit().remove();
 }
 
 d3.select('svg').attr('width', screen.width).attr('height', screen.width);
