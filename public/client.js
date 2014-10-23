@@ -54,8 +54,10 @@ drag.on('dragend', function(d){
 function updateView(data){
   var sel = d3.select('svg').selectAll('circle').data(data, get('id'));
   sel.enter().append('circle').call(drag);
-  sel.attr('fill', function(d){ return d.id === 'self' ? 'red' : 'black'; })
-     .attr('r', function(d){ return d.id === 'consensus' ? 7.5 : radius; })
+  sel.attr('fill', function(d){ return d.id === 'self' ? 'red' :
+                                       d.id === 'consensus' ? 'rgba(0,0,0,0.25)' : 'black'; })
+     .attr('r', function(d){ return d.id === 'self' ? 5 :
+                                    d.id === 'consensus' ? 7 : 2; })
      .transition()
        .duration(function(d){ return d.id === 'self' ? 0 :
                                      d.id === 'consensus' ? 100 : 50; })
