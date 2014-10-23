@@ -55,7 +55,7 @@ function updateView(data){
   console.log(data);
   var sel = d3.select('svg').selectAll('circle').data(data, get('id'));
   sel.enter().append('circle').call(drag);
-  sel.attr('fill', function(d){ return d.id === 'self' ? 'red' : 'black'; })
+  sel.attr('fill', function(d){ return d.id === 'self' ? 'red' : '#999'; })
      .attr('r', function(d){ return d.id === 'self' ? 7 : 2; })
      .transition()
        .duration(function(d){ return d.id === 'self' ? 0 : 50; })
@@ -70,7 +70,8 @@ function updateView(data){
   sel2.enter().append('line');
   sel2.classed('connecter', true)
       .attr('stroke-width', 0.5)
-      .attr('stroke', 'gray')
+      .attr('stroke', '#bbb')
+      .attr('stroke-dasharray', '2,1')
       .attr('x1', get('x'))
       .attr('y1', get('y'))
       .attr('x2', consensus.x)
