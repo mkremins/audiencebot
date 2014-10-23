@@ -10,7 +10,7 @@ var vote = {x: width/2, y: height/2, id: 'self'};
 var votes = [];
 
 function currentState(){
-  return votes.concat(consensus, vote);
+  return votes.concat(vote);
 }
 
 var socket = io();
@@ -52,18 +52,19 @@ drag.on('dragend', function(d){
 });
 
 function updateView(data){
+  console.log(data);
   var sel = d3.select('svg').selectAll('circle').data(data, get('id'));
   sel.enter().append('circle').call(drag);
-  sel.attr('fill', function(d){ return d.id === 'self' ? 'red' :
-                                       d.id === 'consensus' ? 'rgba(0,0,0,0.25)' : 'black'; })
-     .attr('r', function(d){ return d.id === 'self' ? 5 :
-                                    d.id === 'consensus' ? 7 : 2; })
+  sel.attr('fill', function(d){ return d.id === 'self' ? 'red' : 'black'; })
+     .attr('r', function(d){ return d.id === 'self' ? 7 : 2; })
      .transition()
-       .duration(function(d){ return d.id === 'self' ? 0 :
-                                     d.id === 'consensus' ? 100 : 50; })
+       .duration(function(d){ return d.id === 'self' ? 0 : 50; })
        .attr('cx', get('x'))
        .attr('cy', get('y'));
   sel.exit().remove();
+
+  d3.select('#consensus-marker')
+    .transition().duration(100).attr('x', consensus.x - 5).attr('y', consensus.y - 5);
 }
 
 d3.select('svg').attr('width', screen.width).attr('height', screen.width);
