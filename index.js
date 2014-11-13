@@ -27,8 +27,10 @@ function calculateConsensus(votes){
 setInterval(function(){
   overshoot = {x: consensus.x + offset.x, y: consensus.y + offset.y};
   io.emit('consensus changed', overshoot);
-  oscClient.send(new osc.Message('/consensus', overshoot.x, overshoot.y));
+  oscClient.send(new osc.Message('/x', overshoot.x));
+  oscClient.send(new osc.Message('/y', overshoot.y));
   offset = {x: offset.x / 2, y: offset.y / 2};
+  console.log(overshoot);
 }, 100);
 
 io.on('connection', function(socket){
@@ -40,7 +42,7 @@ io.on('connection', function(socket){
   }
 
   socket.on('vote changed', function(vote){
-    console.log(socket.id + ': ' + vote.x + ', ' + vote.y);
+    //console.log(socket.id + ': ' + vote.x + ', ' + vote.y);
 
     // calculate delta
     var prevVote = votes[socket.id] || {id: socket.id, x: 50, y: 50};
